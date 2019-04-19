@@ -15,6 +15,8 @@
 
 // Electronics
 #define MOTHERBOARD BOARD_RAMBO_MINI_1_0
+// MK1 back port
+#define MK1BP
 
 
 
@@ -43,6 +45,15 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Z_MAX_POS 170
 #define Z_MIN_POS 0.23
 
+// Canceled home position
+#define X_CANCEL_POS 50
+#define Y_CANCEL_POS 180
+
+//Pause print position
+#define X_PAUSE_POS 50
+#define Y_PAUSE_POS 180
+#define Z_PAUSE_LIFT 20
+
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {3000, 3000, 240, 0}  // set the homing speeds (mm/min)
 
@@ -54,6 +65,8 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 
 #define MANUAL_FEEDRATE {3000, 3000, 240, 60}   // set the speeds for manual moves (mm/min)
+
+#define Z_AXIS_ALWAYS_ON 1
 
 
 /*------------------------------------
@@ -67,7 +80,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define BED_MINTEMP 15
 
 // Maxtemps
-#define HEATER_0_MAXTEMP 315
+#define HEATER_0_MAXTEMP 305
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define BED_MAXTEMP 150
@@ -138,6 +151,13 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     #define FILAMENT_RUNOUT_SENSOR 1
 #endif
 
+// temperature runaway
+#define TEMP_RUNAWAY_BED_HYSTERESIS 5
+#define TEMP_RUNAWAY_BED_TIMEOUT 360
+
+#define TEMP_RUNAWAY_EXTRUDER_HYSTERESIS 15
+#define TEMP_RUNAWAY_EXTRUDER_TIMEOUT 45
+
 /*------------------------------------
     MOTOR CURRENT SETTINGS
 *------------------------------------*/  
@@ -152,6 +172,83 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define DEFAULT_PWM_MOTOR_CURRENT  {270, 450, 850} // {XY,Z,E}
   #define DEFAULT_PWM_MOTOR_CURRENT_LOUD  {540, 450, 500} // {XY,Z,E}
 #endif
+
+// Define Mesh Bed Leveling system to enable it
+#define MESH_BED_LEVELING
+#ifdef MESH_BED_LEVELING
+
+#define MBL_Z_STEP 0.01
+
+// Mesh definitions
+#define MESH_MIN_X 35
+#define MESH_MAX_X 238
+#define MESH_MIN_Y 6
+#define MESH_MAX_Y 202
+
+// Mesh upsample definition
+#define MESH_NUM_X_POINTS 7
+#define MESH_NUM_Y_POINTS 7
+// Mesh measure definition
+#define MESH_MEAS_NUM_X_POINTS 3
+#define MESH_MEAS_NUM_Y_POINTS 3
+
+#define MESH_HOME_Z_CALIB 0.2
+#define MESH_HOME_Z_SEARCH 5 //Z lift for homing, mesh bed leveling etc.
+
+#define X_PROBE_OFFSET_FROM_EXTRUDER 23     // Z probe to nozzle X offset: -left  +right
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 9     // Z probe to nozzle Y offset: -front +behind
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.4  // Z probe to nozzle Z offset: -below (always!)
+#endif
+
+//
+// Bed Temperature Control
+// Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
+//
+// Uncomment this to enable PID on the bed. It uses the same frequency PWM as the extruder.
+// If your PID_dT above is the default, and correct for your hardware/configuration, that means 7.689Hz,
+// which is fine for driving a square wave into a resistive load and does not significantly impact you FET heating.
+// This also works fine on a Fotek SSR-10DA Solid State Relay into a 250W heater.
+// If your configuration is significantly different than this and you don't understand the issues involved, you probably
+// shouldn't use bed PID until someone else verifies your hardware works.
+// If this is enabled, find your own PID constants below.
+//#define PIDTEMPBED
+//
+//#define BED_LIMIT_SWITCHING
+
+// This sets the max power delivered to the bed, and replaces the HEATER_BED_DUTY_CYCLE_DIVIDER option.
+// all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
+// setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
+// so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
+#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+
+// Bed temperature compensation settings
+#define BED_OFFSET 10
+#define BED_OFFSET_START 40
+#define BED_OFFSET_CENTER 50
+
+
+#ifdef PIDTEMPBED
+//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+#if defined(E3D_PT100_BED_WITH_AMP) || defined(E3D_PT100_BED_NO_AMP)
+// Define PID constants for extruder with PT100
+#define  DEFAULT_bedKp 21.70
+#define  DEFAULT_bedKi 1.60
+#define  DEFAULT_bedKd 73.76
+#else
+#define  DEFAULT_bedKp 126.13
+#define  DEFAULT_bedKi 4.30
+#define  DEFAULT_bedKd 924.76
+#endif
+
+//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+//from pidautotune
+//    #define  DEFAULT_bedKp 97.1
+//    #define  DEFAULT_bedKi 1.41
+//    #define  DEFAULT_bedKd 1675.16
+
+// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+#endif // PIDTEMPBED
 
 /*------------------------------------
     PREHEAT SETTINGS
@@ -226,5 +323,37 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 1
 
+#define STACK_GUARD_TEST_VALUE 0xA2A2
+
+#define MAX_BED_TEMP_CALIBRATION 50
+#define MAX_HOTEND_TEMP_CALIBRATION 50
+
+#define MAX_E_STEPS_PER_UNIT 250
+#define MIN_E_STEPS_PER_UNIT 100
+
+#define Z_BABYSTEP_MIN -3999
+#define Z_BABYSTEP_MAX 0
+
+#define PINDA_PREHEAT_X 70
+#define PINDA_PREHEAT_Y -3
+#define PINDA_PREHEAT_Z 1
+#define PINDA_HEAT_T 120 //time in s
+
+#define PINDA_MIN_T 50
+#define PINDA_STEP_T 10
+#define PINDA_MAX_T 100
+
+#define PING_TIME 60 //time in s
+#define PING_TIME_LONG 600 //10 min; used when length of commands buffer > 0 to avoid false triggering when dealing with long gcodes
+#define PING_ALLERT_PERIOD 60 //time in s
+
+#define LONG_PRESS_TIME 1000 //time in ms for button long press 
+#define BUTTON_BLANKING_TIME 200 //time in ms for blanking after button release
+
+#define PAUSE_RETRACT 1 
+
+#define DEFAULT_PID_TEMP 210
+
+#define DEFAULT_RETRACTION 1 //used for PINDA temp calibration
 
 #endif //__CONFIGURATION_PRUSA_H
