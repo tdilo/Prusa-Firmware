@@ -36,11 +36,11 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define MANUAL_Z_HOME_POS 0.25
 
 // Travel limits after homing
-#define X_MAX_POS 214
+#define X_MAX_POS 185
 #define X_MIN_POS 0
-#define Y_MAX_POS 198
+#define Y_MAX_POS 185
 #define Y_MIN_POS 0
-#define Z_MAX_POS 201
+#define Z_MAX_POS 170
 #define Z_MIN_POS 0.23
 
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -109,7 +109,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Filament change configuration
 #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 211
+    #define FILAMENTCHANGE_XPOS 180
     #define FILAMENTCHANGE_YPOS 0
     #define FILAMENTCHANGE_ZADD 2
     #define FILAMENTCHANGE_FIRSTRETRACT -2
