@@ -2,7 +2,7 @@
 #define CONFIGURATION_PRUSA_H
 
 /*------------------------------------
-    GENERAL SETTINGS
+GENERAL SETTINGS
 *------------------------------------*/
 
 // Printer revision
@@ -10,22 +10,39 @@
 #define NOZZLE_TYPE "PrusaNmk2"
 #define THREEMM_PRINTER   
 
+// Developer flag
+#define DEVELOPER
+
 // Printer name
-#define CUSTOM_MENDEL_NAME "Prusa i3"
+#define CUSTOM_MENDEL_NAME "Prusa i3 MK1"
 
 // Electronics
 #define MOTHERBOARD BOARD_RAMBO_MINI_1_0
+
 // MK1 back port
 #define MK1BP
 
+// Prusa Single extruder multiple material suport
+//#define SNMM
+
+// Uncomment the below for the E3D PT100 temperature sensor (with or without PT100 Amplifier)
+//#define E3D_PT100_EXTRUDER_WITH_AMP
+//#define E3D_PT100_EXTRUDER_NO_AMP
+//#define E3D_PT100_BED_WITH_AMP
+//#define E3D_PT100_BED_NO_AMP
 
 
 /*------------------------------------
-    AXIS SETTINGS
+AXIS SETTINGS
 *------------------------------------*/
 
 // Steps per unit {X,Y,Z,E}
+#ifdef SNMM
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,3200/0.8,140}
+#else
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,3200/0.8,350*1.5} 
+#endif
+
 
 // Endstop inverting
 const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
@@ -68,9 +85,8 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 #define Z_AXIS_ALWAYS_ON 1
 
-
 /*------------------------------------
-    EXTRUDER SETTINGS
+EXTRUDER SETTINGS
 *------------------------------------*/
 
 // Mintemps
@@ -80,15 +96,26 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define BED_MINTEMP 15
 
 // Maxtemps
+#if defined(E3D_PT100_EXTRUDER_WITH_AMP) || defined(E3D_PT100_EXTRUDER_NO_AMP)
+#define HEATER_0_MAXTEMP 410
+#else
 #define HEATER_0_MAXTEMP 305
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define BED_MAXTEMP 150
+#endif
+#define HEATER_1_MAXTEMP 305
+#define HEATER_2_MAXTEMP 305
+#define BED_MAXTEMP 125
 
+#if defined(E3D_PT100_EXTRUDER_WITH_AMP) || defined(E3D_PT100_EXTRUDER_NO_AMP)
+// Define PID constants for extruder with PT100
+#define  DEFAULT_Kp 21.70
+#define  DEFAULT_Ki 1.60
+#define  DEFAULT_Kd 73.76
+#else
 // Define PID constants for extruder
 #define  DEFAULT_Kp 12.7
 #define  DEFAULT_Ki 1.09
 #define  DEFAULT_Kd 37.4
+#endif
 
 // Extrude mintemp
 #define EXTRUDE_MINTEMP 190
@@ -102,57 +129,61 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 
 
+
+
+
+#ifdef SNMM
+//#define BOWDEN_LENGTH	408
+#define BOWDEN_LENGTH 433 //default total length for filament fast loading part; max length for extrusion is 465 mm!; this length can be adjusted in service menu
+#define FIL_LOAD_LENGTH 102 //length for loading filament into the nozzle
+#define FIL_COOLING 10 //length for cooling moves
+#define E_MOTOR_LOW_CURRENT 350 // current for PRUSAY code
+#define E_MOTOR_HIGH_CURRENT 700 //current for unloading filament, stop print, PRUSAY ramming
+#endif //SNMM
+
+//#define DIS //for measuring bed heigth and PINDa detection heigth relative to auto home point, experimental function
+
+
 /*------------------------------------
-    LOAD/UNLOAD FILAMENT SETTINGS
+CHANGE FILAMENT SETTINGS
 *------------------------------------*/
-
-// Load filament commands
-#define LOAD_FILAMENT_0 "M83"
-#define LOAD_FILAMENT_1 "G1 E65 F400"
-#define LOAD_FILAMENT_2 "G1 E40 F100"
-
-// Unload filament commands
-#define UNLOAD_FILAMENT_0 "M83"
-#define UNLOAD_FILAMENT_1 "G1 E-80 F400"
-
-/*------------------------------------
-    CHANGE FILAMENT SETTINGS
-*------------------------------------*/    
 
 // Filament change configuration
 #define FILAMENTCHANGEENABLE
-  #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 180
-    #define FILAMENTCHANGE_YPOS 0
-    #define FILAMENTCHANGE_ZADD 2
-    #define FILAMENTCHANGE_FIRSTRETRACT -2
-    #define FILAMENTCHANGE_FINALRETRACT -80
-    
-    #define FILAMENTCHANGE_FIRSTFEED 70
-    #define FILAMENTCHANGE_FINALFEED 50
-    #define FILAMENTCHANGE_RECFEED 5
+#ifdef FILAMENTCHANGEENABLE
+#define FILAMENTCHANGE_XPOS 180
+#define FILAMENTCHANGE_YPOS 0
+#define FILAMENTCHANGE_ZADD 2
+#define FILAMENTCHANGE_FIRSTRETRACT -2
+#define FILAMENTCHANGE_FINALRETRACT -80
 
-    #define FILAMENTCHANGE_XYFEED 70
-    #define FILAMENTCHANGE_EFEED 20
-    #define FILAMENTCHANGE_RFEED 400
-    #define FILAMENTCHANGE_EXFEED 2
-    #define FILAMENTCHANGE_ZFEED 300
-    
+#define FILAMENTCHANGE_FIRSTFEED 70
+#define FILAMENTCHANGE_FINALFEED 50
+#define FILAMENTCHANGE_RECFEED 5
+
+#define FILAMENTCHANGE_XYFEED 50
+#define FILAMENTCHANGE_EFEED 20
+#define FILAMENTCHANGE_RFEED 400
+#define FILAMENTCHANGE_EXFEED 2
+#define FILAMENTCHANGE_ZFEED 15
+
 #endif
 
 /*------------------------------------
-    ADDITIONAL FEATURES SETTINGS
-*------------------------------------*/  
+ADDITIONAL FEATURES SETTINGS
+*------------------------------------*/
 
 // Define Prusa filament runout sensor
 //#define FILAMENT_RUNOUT_SUPPORT
 
 #ifdef FILAMENT_RUNOUT_SUPPORT
-    #define FILAMENT_RUNOUT_SENSOR 1
-    #define FILAMENT_RUNOUT_SCRIPT "M600"
+#define FILAMENT_RUNOUT_SENSOR 1
+#define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
 
 // temperature runaway
+#define TEMP_MAX_CHECKED_BED 95
+
 #define TEMP_RUNAWAY_BED_HYSTERESIS 5
 #define TEMP_RUNAWAY_BED_TIMEOUT 360
 
@@ -160,8 +191,8 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define TEMP_RUNAWAY_EXTRUDER_TIMEOUT 45
 
 /*------------------------------------
-    MOTOR CURRENT SETTINGS
-*------------------------------------*/  
+MOTOR CURRENT SETTINGS
+*------------------------------------*/
 
 // Motor Current setting for BIG RAMBo
 #define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
@@ -169,12 +200,16 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // Motor Current settings for RAMBo mini PWM value = MotorCurrentSetting * 255 / range
 #if MOTHERBOARD == 102 || MOTHERBOARD == 302
-  #define MOTOR_CURRENT_PWM_RANGE 2000
-  #define DEFAULT_PWM_MOTOR_CURRENT  {270, 450, 850} // {XY,Z,E}
-  #define DEFAULT_PWM_MOTOR_CURRENT_LOUD  {540, 450, 500} // {XY,Z,E}
-  #define Z_SILENT 0
-  #define Z_HIGH_POWER 200
+#define MOTOR_CURRENT_PWM_RANGE 2000
+#define DEFAULT_PWM_MOTOR_CURRENT  {270, 450, 850} // {XY,Z,E}
+#define DEFAULT_PWM_MOTOR_CURRENT_LOUD  {540, 450, 500} // {XY,Z,E}
+#define Z_SILENT 0
+#define Z_HIGH_POWER 200
 #endif
+
+/*------------------------------------
+BED SETTINGS
+*------------------------------------*/
 
 // Define Mesh Bed Leveling system to enable it
 #define MESH_BED_LEVELING
@@ -203,7 +238,6 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.4  // Z probe to nozzle Z offset: -below (always!)
 #endif
 
-//
 // Bed Temperature Control
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
@@ -253,17 +287,18 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
-/*------------------------------------
-    PREHEAT SETTINGS
-*------------------------------------*/  
 
-#define PLA_PREHEAT_HOTEND_TEMP 220
-#define PLA_PREHEAT_HPB_TEMP 50
-#define PLA_PREHEAT_FAN_SPEED 255
+/*-----------------------------------
+PREHEAT SETTINGS
+*------------------------------------*/
 
-#define ABS_PREHEAT_HOTEND_TEMP 285
+#define PLA_PREHEAT_HOTEND_TEMP 215
+#define PLA_PREHEAT_HPB_TEMP 55
+#define PLA_PREHEAT_FAN_SPEED 0  
+
+#define ABS_PREHEAT_HOTEND_TEMP 255
 #define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 255
+#define ABS_PREHEAT_FAN_SPEED 0 
 
 #define HIPS_PREHEAT_HOTEND_TEMP 220
 #define HIPS_PREHEAT_HPB_TEMP 100
@@ -277,13 +312,12 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define PET_PREHEAT_HPB_TEMP 90
 #define PET_PREHEAT_FAN_SPEED 0 
 
-#define FLEX_PREHEAT_HOTEND_TEMP 250
+#define FLEX_PREHEAT_HOTEND_TEMP 230
 #define FLEX_PREHEAT_HPB_TEMP 50
 #define FLEX_PREHEAT_FAN_SPEED 0 
 
-
 /*------------------------------------
-    THERMISTORS SETTINGS
+THERMISTORS SETTINGS
 *------------------------------------*/
 
 //
@@ -319,12 +353,26 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // 1047 is Pt1000 with 4k7 pullup
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
+// 148 is E3D Pt100 with 4k7 pullup and no PT100 Amplifier on a MiniRambo 1.0a
+// 247 is Pt100 with 4k7 pullup and PT100 Amplifier
 // 110 is Pt100 with 1k pullup (non standard)
 
+#if defined(E3D_PT100_EXTRUDER_WITH_AMP)
+#define TEMP_SENSOR_0 247
+#elif defined(E3D_PT100_EXTRUDER_NO_AMP)
+#define TEMP_SENSOR_0 148
+#else
 #define TEMP_SENSOR_0 1
+#endif
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
+#if defined(E3D_PT100_BED_WITH_AMP)
+#define TEMP_SENSOR_BED 247
+#elif defined(E3D_PT100_BED_NO_AMP)
+#define TEMP_SENSOR_BED 148
+#else
 #define TEMP_SENSOR_BED 1
+#endif
 
 #define STACK_GUARD_TEST_VALUE 0xA2A2
 
@@ -361,6 +409,6 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 #define DEFAULT_RETRACTION 1 //used for PINDA temp calibration
 
-#define END_FILE_SECTION 10000 //number of bytes from end of file used for checking if file is complete
+#define END_FILE_SECTION 20000 //number of bytes from end of file used for checking if file is complete
 
 #endif //__CONFIGURATION_PRUSA_H
